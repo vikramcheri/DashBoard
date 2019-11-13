@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>    
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8"></meta>
+    <title>Pie Chart</title>
+      <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+
+    <style type="text/css">
+        .slice text {
+            font-size: 16pt;
+            font-family: Arial;
+        }   
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
+
+    var w = 300,                        //width
+    h = 300,                            //height
+    r = 100,                            //radius
+    color = d3.scale.category20c();     //builtin range of colors
+
+   
+    
+    d3.json("http://127.0.0.1:8080/generateD3PieChart",function(info){
+    	var data=info;
+    	console.log("data:",data)
+    	var vis = d3.select("body")
+        .append("svg:svg")             
+        .data([data])                   
+            .attr("width", w)           
+            .attr("height", h)
+        .append("svg:g")                
+            .attr("transform", "translate(" + r + "," + r + ")")    
+
+    var arc = d3.svg.arc()              
+        .outerRadius(r);
+
+    var pie = d3.layout.pie()           
+        .value(function(d) { return d.value; });    
+
+    var arcs = vis.selectAll("g.slice")     
+        .data(pie)                         
+        .enter()                            
+            .append("svg:g")                
+                .attr("class", "slice");    
+
+        arcs.append("svg:path")
+                .attr("fill", function(d, i) { return color(i); } ) 
+                .attr("d", arc);                                    
+
+        arcs.append("svg:text")                                   
+                .attr("transform", function(d) {                    
+                d.innerRadius = 0;
+                d.outerRadius = r;
+                return "translate(" + arc.centroid(d) + ")";        
+            })
+            .attr("text-anchor", "middle")                          
+            .text(function(d, i) { return data[i].label; });        
+
+    });
+
+	
+	
+
+    	
+    
+        
+    </script>
+  </body>
+</html>

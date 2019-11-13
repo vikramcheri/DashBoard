@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<style>
+
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+div#layout {
+  text-align: center;
+}
+
+div#container {
+  width: 500px;
+  height: 350px;
+  margin: auto;
+  background-color: #2F4A6D;
+}
+
+svg {
+  width: 100%;
+  height: 100%;
+}
+
+.bar {
+	fill: steelblue;
+	stroke: black
+}
+
+text {
+  font-size: 12px;
+  fill: #fff;
+}
+
+path {
+  stroke: gray;
+}
+
+line {
+  stroke: gray;
+}
+
+line#limit {
+  stroke: #FED966;
+  stroke-width: 3;
+  stroke-dasharray: 3 6;
+}
+
+.grid path {
+  stroke-width: 0;
+}
+
+.grid .tick line {
+  stroke: #9FAAAE;
+  stroke-opacity: 0.3;
+}
+
+text.divergence {
+  font-size: 14px;
+  fill: #2F4A6D;
+}
+
+text.value {
+  font-size: 12px;
+}
+
+text.title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+text.label {
+  font-size: 12px;
+  font-weight: 400;
+}
+
+text.source {
+  font-size: 8px;
+}
+</style>
+
+<body>
+<div id='layout'>
+	<div id='container'>
+	<svg width="400" height="350"></svg>
+	</div>
+	</div>
+	 <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet"></link>
+	<script src="//d3js.org/d3.v5.min.js"></script>
+</body>
+<script>
+
+	d3.json("http://127.0.0.1:8080/generateD3GroupedBarChart").then(function(data){
+		
+	var svg = d3.select("svg"),
+
+	margin = {
+		top : 20,
+		right : 20,
+		bottom : 30,
+		left : 40
+	}, width = +svg.attr("width") - margin.left - margin.right, height = +svg
+			.attr("height")
+			- margin.top - margin.bottom;
+
+	var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+	var x = d3.scaleBand().rangeRound([ 0, width ]).padding(0.1), y = d3
+			.scaleLinear().rangeRound([ height, 0 ]);
+
+	var g = svg.append("g").attr("transform",
+			"translate(" + margin.left + "," + margin.top + ")");
+
+
+	
+	/* var data = [ {
+		"Group" : "Mars",
+		"count" : 10,
+		"months" : "June"
+	}, {
+		"Group" : "Jupiter",
+		"count" : 50,
+		"months" : "June"
+	}, {
+		"Group" : "Mars",
+		"count" : 70,
+		"months" : "July"
+	}, {
+		"Group" : "Jupiter",
+		"count" : 60,
+		"months" : "July"
+	}, {
+		"Group" : "Mars",
+		"count" : 50,
+		"months" : "Aug"
+	}, {
+		"Group" : "Jupiter",
+		"count" : 85,
+		"months" : "Aug"
+	} ];
+ */
+	var ymaxdomain = d3.max(data, function(d) {
+		return d.count;
+	});
+ 
+	x.domain(data.map(function(d) {
+		return d.months
+	}));
+	y.domain([ 0, ymaxdomain ]);
+
+	var x1 = d3.scaleBand().rangeRound([ 0, x.bandwidth() ]).padding(0.05)
+			.domain(data.map(function(d) {
+				return d.group;
+			}));
+
+	color.domain(data.map(function(d) {
+		return d.group;
+	}));
+
+	var groups = g.selectAll(null).data(data).enter().append("g").attr(
+			"transform", function(d) {
+				return "translate(" + x(d.months) + ",0)";
+			})
+
+	var bars = groups.selectAll(null).data(function(d) {
+		return [ d ]
+	}).enter().append("rect").attr("x", function(d, i) {
+		return x1(d.group)
+	}).attr("y", function(d) {
+		return y(d.count);
+	}).attr("width", x1.bandwidth()).attr("height", function(d) {
+		return height - y(d.count);
+	}).attr("fill", function(d) {
+		return color(d.group)
+	})
+
+	g.append("g").attr("class", "axis").attr("transform",
+			"translate(0," + height + ")").call(d3.axisBottom(x));
+
+	g.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(null, "s"))
+			.append("text").attr("x", 2).attr("y", y(y.ticks().pop()) + 0.5)
+			.attr("dy", "0.32em").attr("fill", "#000").attr("font-weight",
+					"bold").attr("text-anchor", "start").text("count");
+	
+	});
+</script>
+</html>
