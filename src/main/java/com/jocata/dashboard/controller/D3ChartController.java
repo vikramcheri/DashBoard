@@ -31,5 +31,11 @@ public class D3ChartController {
 	public String loadD3DrillDownBarChart() {
 		return "d3_drilldown_barchart";	
 	}
+	
+	@GetMapping(value = "/loadD3DonutChart")
+	public String loadD3DonutChart() {
+		return "d3_donutchart";	
+	}
+
 
 }

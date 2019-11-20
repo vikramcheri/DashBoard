@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.jocata.dashboard.vo.DonutChartDataVO;
 import com.jocata.dashboard.vo.DrillDownBarChartDataVO;
 import com.jocata.dashboard.vo.PieChartDataVO;
 import com.jocata.dashboard.vo.SampleVO;
@@ -185,4 +186,34 @@ public class D3ChartRestController {
 		  return drillDownChartList;	  
 		  
 	  }
+	  
+	  @GetMapping(value = "/generateD3DonutChart")
+		public  List<DonutChartDataVO> generateD3DonutChart() {
+			
+			List<DonutChartDataVO> donutChartList = new ArrayList<>();
+			
+			DonutChartDataVO donutChartDataVO1=new DonutChartDataVO();
+			donutChartDataVO1.setName("IE");
+			donutChartDataVO1.setPercent(29);
+			donutChartList.add(donutChartDataVO1);
+			
+			DonutChartDataVO donutChartDataVO2=new DonutChartDataVO();
+			donutChartDataVO2.setName("Chrome");
+			donutChartDataVO2.setPercent(35);
+			donutChartList.add(donutChartDataVO2);
+			
+			DonutChartDataVO donutChartDataVO3=new DonutChartDataVO();
+			donutChartDataVO3.setName("Firefox");
+			donutChartDataVO3.setPercent(30);
+			donutChartList.add(donutChartDataVO3);
+			
+			DonutChartDataVO donutChartDataVO4=new DonutChartDataVO();
+			donutChartDataVO4.setName("Others");
+			donutChartDataVO4.setPercent(6);
+			donutChartList.add(donutChartDataVO4);
+			
+			return donutChartList;
+			
+		}
+
 }
