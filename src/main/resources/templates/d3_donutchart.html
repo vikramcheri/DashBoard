@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<head>
+<meta charset="UTF-8"></meta>
+<title>D3 Donut chart</title>
+<link
+	href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.5/css/bootstrap.css"
+	rel="stylesheet"></link>
+<link href='https://fonts.googleapis.com/css?family=Roboto:400,700,500'
+	rel='stylesheet' type='text/css'></link>
+<script src="https://d3js.org/d3.v3.min.js"></script>
+<style>
+body {
+	background-color: #ccc;
+	width: 100%;
+	font-family: 'Roboto', sans-serif;
+	height: 100%;
+}
+
+.widget {
+	margin: 0 auto;
+	width: 350px;
+	margin-top: 50px;
+	background-color: #fff;
+	border-radius: 5px;
+	box-shadow: 1px 1px 4px 0px rgba(0, 0, 0, 0.3);
+}
+
+.header {
+	background-color: #eee;
+	height: 40px;
+	color: #555;
+	text-align: center;
+	line-height: 40px;
+	border-top-left-radius: 7px;
+	border-top-right-radius: 7px;
+	font-weight: 400;
+	font-size: 1.5em;
+	text-shadow: 1px 1px #fff;
+	border-bottom: 1px solid #eaeaea;
+}
+
+.chart-container {
+	padding: 25px;
+	background-color: #2F4A6D;
+}
+</style>
+</head>
+<body>
+
+	<div class="widget">
+		<div class="header">Browser Market Share</div>
+		<div id="chart" class="chart-container"></div>
+	</div>
+	<script>
+ d3.json("http://127.0.0.1:8080/generateD3DonutChart",function(data){
+	 var dataset=data;
+	 console.log("data:",dataset);
+	 var pie=d3.layout.pie()
+	 .value(function(d){return d.percent})
+	 .sort(null)
+	 .padAngle(.03);
+
+	var w=300,h=300;
+
+	var outerRadius=w/2;
+	var innerRadius=100;
+
+	var color = d3.scale.category10();
+
+	var arc=d3.svg.arc()
+	 .outerRadius(outerRadius)
+	 .innerRadius(innerRadius);
+
+	var svg=d3.select("#chart")
+	 .append("svg")
+	 .attr({
+	     width:w,
+	     height:h,
+	     class:'shadow'
+	 }).append('g')
+	 .attr({
+	     transform:'translate('+w/2+','+h/2+')'
+	 });
+	var path=svg.selectAll('path')
+	 .data(pie(dataset))
+	 .enter()
+	 .append('path')
+	 .attr({
+	     d:arc,
+	     fill:function(d,i){
+	         return color(d.data.name);
+	     }
+	 });
+
+	path.transition()
+	.duration(1000)
+	.attrTween('d', function(d) {
+	    var interpolate = d3.interpolate({startAngle: 0, endAngle: 0}, d);
+	    return function(t) {
+	        return arc(interpolate(t));
+	    };
+	});
+
+	var text=svg.selectAll('text')
+	.data(pie(dataset))
+	.enter()
+	.append("text")
+	.transition()
+	.duration(200)
+	.attr("transform", function (d) {
+	    return "translate(" + arc.centroid(d) + ")";
+	})
+	.attr("dy", ".4em")
+	.attr("text-anchor", "middle")
+	.text(function(d){
+	    return d.data.percent+"%";
+	})
+	.style({
+	    fill:'#fff',
+	    'font-size':'10px'
+	});
+
+	var legendRectSize=20;
+	var legendSpacing=7;
+	var legendHeight=legendRectSize+legendSpacing;
+	 
+	 
+	var legend=svg.selectAll('.legend')
+	  .data(color.domain())
+	  .enter()
+	  .append('g')
+	  .attr({
+	      class:'legend',
+	      transform:function(d,i){
+	          //Just a calculation for x and y position
+	          return 'translate(-35,' + ((i*legendHeight)-65) + ')';
+	      }
+	  });
+	  
+	legend.append('rect')
+	.attr({
+	    width:legendRectSize,
+	    height:legendRectSize,
+	    rx:20,
+	    ry:20
+	})
+	.style({
+	    fill:color,
+	    stroke:color
+	});
+
+	legend.append('text')
+	.attr({
+	    x:30,
+	    y:15
+	})
+	.text(function(d){
+	    return d;
+	}).style({
+	    fill:'#929DAF',
+	    'font-size':'14px'
+	});
+ });
+	 
+ 
+	
+ </script>
+</body>
